@@ -7,36 +7,55 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-white p-4">
-    <h1 class="text-xl font-bold mb-4">Test Statistici Meci</h1>
-    <div id="result" class="text-sm bg-gray-800 p-4 rounded">Se încarcă...</div>
+    <h1 class="text-xl font-bold mb-4">Test API Sparrow</h1>
+    
+    <h2 class="text-md font-semibold mb-2">1. Meciuri Viitoare</h2>
+    <div id="upcoming" class="text-sm bg-gray-800 p-4 rounded mb-4">Se încarcă...</div>
+
+    <h2 class="text-md font-semibold mb-2">2. Predicție Meci</h2>
+    <div id="prediction" class="text-sm bg-gray-800 p-4 rounded">Se încarcă...</div>
 
     <script>
-        // CHEIA TA DE LA SPARROW API (RapidAPI)
         const API_KEY = "ce24597366msh6983057d71a3bc3p18791fjsn81a8dd98a1ca"; 
         const API_HOST = "football-soccer4.p.rapidapi.com";
-        const MATCH_ID = "5795459"; // Fulham vs Man United
 
-        async function getMatchStats() {
-            const result = document.getElementById('result');
-            
+        async function testUpcoming() {
+            const result = document.getElementById('upcoming');
             try {
-                const response = await fetch(`https://${API_HOST}/v1/statistics/match/${MATCH_ID}`, {
+                const response = await fetch(`https://${API_HOST}/v1/matches-upcoming`, {
                     method: 'GET',
                     headers: {
                         'x-rapidapi-key': API_KEY,
                         'x-rapidapi-host': API_HOST
                     }
                 });
-
                 const data = await response.json();
-                result.innerText = JSON.stringify(data, null, 2);
-
+                result.innerText = JSON.stringify(data, null, 2).substring(0, 800);
             } catch (error) {
                 result.innerText = "Eroare: " + error.message;
             }
         }
 
-        getMatchStats();
+        async function testPrediction() {
+            const result = document.getElementById('prediction');
+            try {
+                // Încercăm să cerem o predicție pentru un meci (ex: ID 5795459)
+                const response = await fetch(`https://${API_HOST}/v1/match-prediction?id=5795459`, {
+                    method: 'GET',
+                    headers: {
+                        'x-rapidapi-key': API_KEY,
+                        'x-rapidapi-host': API_HOST
+                    }
+                });
+                const data = await response.json();
+                result.innerText = JSON.stringify(data, null, 2).substring(0, 800);
+            } catch (error) {
+                result.innerText = "Eroare: " + error.message;
+            }
+        }
+
+        testUpcoming();
+        testPrediction();
     </script>
 </body>
 </html>
