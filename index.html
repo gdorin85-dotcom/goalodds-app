@@ -36,13 +36,13 @@
         const API_KEY = "9833b974a3e9b17e7226d0f74c53de92"; 
         const API_HOST = "v3.football.api-sports.io";
 
-        // ID-urile EXACTE și unice ale ligilor din API-Football
-        const targetLeagueIds = [
-            140, 141,             // Spania: La Liga, Segunda
-            39, 40, 41, 42,       // Anglia: Premier League, Championship, League One, League Two
-            78, 79,               // Germania: Bundesliga, 2. Bundesliga
-            135, 136              // Italia: Serie A, Serie B
-        ];
+        // FILTRARE DUBLA: Tara + Cuvant cheie in numele ligii
+        const targetData = {
+            "Spain": ["La Liga", "Segunda"],
+            "England": ["Premier League", "Championship", "League One", "League Two"],
+            "Germany": ["Bundesliga"],
+            "Italy": ["Serie A", "Serie B"]
+        };
 
         async function loadMatches() {
             const statusEl = document.getElementById('api-status');
@@ -54,7 +54,6 @@
             try {
                 let allMatches = [];
                 
-                // Tragem meciurile pentru următoarele 7 zile
                 for (let i = 0; i < 7; i++) {
                     const date = new Date();
                     date.setDate(date.getDate() + i);
@@ -74,11 +73,19 @@
                     }
                 }
 
-                // FILTRAREA STRICTĂ: Doar după ID-ul ligii și statusul "Not Started"
-                const filteredMatches = allMatches.filter(match => 
-                    targetLeagueIds.includes(match.league.id) && 
-                    match.fixture.status.short === 'NS'
-                );
+                // FILTRAREA
+                const filteredMatches = allMatches.filter(match => {
+                    const country = match.league.country;
+                    const leagueName = match.league.name;
+
+                    // Verificam daca tara e in lista
+                    if (targetData[country]) {
+                        // Verificam daca numele ligii contine vreunul din cuvintele cheie
+                        const isTargetLeague = targetData[country].some(t => leagueName.includes(t));
+                        return isTargetLeague && match.fixture.status.short === 'NS';
+                    }
+                    return false;
+                });
 
                 if (filteredMatches.length > 0) {
                     statusEl.innerHTML = `<i class="fa-solid fa-check text-brand-500 mr-1"></i> ${filteredMatches.length} meciuri găsite.`;
